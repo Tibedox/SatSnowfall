@@ -4,10 +4,12 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
 
 public class Snowfall extends ApplicationAdapter {
@@ -35,7 +37,8 @@ public class Snowfall extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 		touch = new Vector3();
-		font = new BitmapFont();
+
+		generateFont();
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
@@ -86,10 +89,23 @@ public class Snowfall extends ApplicationAdapter {
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
 		batch.draw(isSoundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
-		font.draw(batch, "SCORE: "+score, SCR_WIDTH-100, SCR_HEIGHT-20);
+		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-20);
 		batch.end();
 	}
-	
+
+	void generateFont(){
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("isabella.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 40;
+		parameter.color = Color.GREEN;
+		parameter.shadowColor = Color.BLACK;
+		parameter.shadowOffsetX = 3;
+		parameter.shadowOffsetY = 3;
+		parameter.borderWidth = 1;
+		parameter.borderColor = Color.BLACK;
+		font = generator.generateFont(parameter);
+	}
+
 	@Override
 	public void dispose () {
 		batch.dispose();

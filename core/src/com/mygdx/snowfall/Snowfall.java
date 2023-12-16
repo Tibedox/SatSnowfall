@@ -1,6 +1,7 @@
 package com.mygdx.snowfall;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -8,17 +9,22 @@ public class Snowfall extends ApplicationAdapter {
 	public static final float SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 	SpriteBatch batch;
+	OrthographicCamera camera;
 
 	Texture imgSnowflake;
 	Texture ibgBackGround;
 
-	Snowflake[] snowflakes = new Snowflake[200];
+	Snowflake[] snowflakes = new Snowflake[20];
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
+
 		imgSnowflake = new Texture("snowflake.png");
 		ibgBackGround = new Texture("forest.png");
+
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
@@ -30,6 +36,8 @@ public class Snowfall extends ApplicationAdapter {
 			snowflakes[i].move();
 		}
 
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		batch.draw(ibgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
 		for (int i = 0; i < snowflakes.length; i++) {

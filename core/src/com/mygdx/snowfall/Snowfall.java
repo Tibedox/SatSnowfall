@@ -2,11 +2,11 @@ package com.mygdx.snowfall;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 
 public class Snowfall extends ApplicationAdapter {
@@ -17,9 +17,14 @@ public class Snowfall extends ApplicationAdapter {
 	Vector3 touch;
 
 	Texture imgSnowflake;
-	Texture ibgBackGround;
+	Texture imgBackGround;
+	Texture imgSoundOn, imgSoundOff;
+	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[20];
+	MyButton btnSound;
+
+	boolean isSoundOn = true;
 	
 	@Override
 	public void create () {
@@ -29,8 +34,12 @@ public class Snowfall extends ApplicationAdapter {
 		touch = new Vector3();
 
 		imgSnowflake = new Texture("snowflake.png");
-		ibgBackGround = new Texture("forest.png");
+		imgBackGround = new Texture("forest.png");
+		imgSoundOn = new Texture("soundon.png");
+		imgSoundOff = new Texture("soundoff.png");
+		sndChpok = Gdx.audio.newSound(Gdx.files.internal("chpok.mp3"));
 
+		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
@@ -46,7 +55,13 @@ public class Snowfall extends ApplicationAdapter {
 			for (int i = 0; i < snowflakes.length; i++) {
 				if(snowflakes[i].hit(touch.x, touch.y)){
 					snowflakes[i].respawn();
+					if(isSoundOn) {
+						sndChpok.play();
+					}
 				}
+			}
+			if(btnSound.hit(touch.x, touch.y)) {
+				isSoundOn = !isSoundOn;
 			}
 		}
 
@@ -59,12 +74,13 @@ public class Snowfall extends ApplicationAdapter {
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		batch.draw(ibgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
+		batch.draw(imgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
 		for (int i = 0; i < snowflakes.length; i++) {
 			batch.draw(imgSnowflake, snowflakes[i].x, snowflakes[i].y,
 					snowflakes[i].width/2, snowflakes[i].height/2, snowflakes[i].width, snowflakes[i].height,
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
+		batch.draw(isSoundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
 		batch.end();
 	}
 	
@@ -72,6 +88,9 @@ public class Snowfall extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		imgSnowflake.dispose();
-		ibgBackGround.dispose();
+		imgBackGround.dispose();
+		imgSoundOn.dispose();
+		imgSoundOff.dispose();
+		sndChpok.dispose();
 	}
 }

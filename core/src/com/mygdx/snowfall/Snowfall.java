@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
@@ -15,6 +16,7 @@ public class Snowfall extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
+	BitmapFont font;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
@@ -25,6 +27,7 @@ public class Snowfall extends ApplicationAdapter {
 	MyButton btnSound;
 
 	boolean isSoundOn = true;
+	int score;
 	
 	@Override
 	public void create () {
@@ -32,6 +35,7 @@ public class Snowfall extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 		touch = new Vector3();
+		font = new BitmapFont();
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
@@ -54,6 +58,7 @@ public class Snowfall extends ApplicationAdapter {
 
 			for (int i = 0; i < snowflakes.length; i++) {
 				if(snowflakes[i].hit(touch.x, touch.y)){
+					score++;
 					snowflakes[i].respawn();
 					if(isSoundOn) {
 						sndChpok.play();
@@ -81,6 +86,7 @@ public class Snowfall extends ApplicationAdapter {
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
 		batch.draw(isSoundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
+		font.draw(batch, "SCORE: "+score, SCR_WIDTH-100, SCR_HEIGHT-20);
 		batch.end();
 	}
 	

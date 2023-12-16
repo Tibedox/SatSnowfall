@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 
 public class Snowfall extends ApplicationAdapter {
@@ -33,6 +34,7 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
+
 		InputProcessor processor = new InputProcessor() {
 			@Override
 			public boolean keyDown(int keycode) {

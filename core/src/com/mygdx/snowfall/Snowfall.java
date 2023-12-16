@@ -34,68 +34,12 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
-
-		InputProcessor processor = new InputProcessor() {
-			@Override
-			public boolean keyDown(int keycode) {
-				return false;
-			}
-
-			@Override
-			public boolean keyUp(int keycode) {
-				return false;
-			}
-
-			@Override
-			public boolean keyTyped(char character) {
-				return false;
-			}
-
-			@Override
-			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				touch.set(screenX, screenY, 0);
-				camera.unproject(touch);
-
-				for (int i = 0; i < snowflakes.length; i++) {
-					if(snowflakes[i].hit(touch.x, touch.y)){
-						snowflakes[i].respawn();
-					}
-				}
-				return false;
-			}
-
-			@Override
-			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-
-			@Override
-			public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-
-			@Override
-			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				return false;
-			}
-
-			@Override
-			public boolean mouseMoved(int screenX, int screenY) {
-				return false;
-			}
-
-			@Override
-			public boolean scrolled(float amountX, float amountY) {
-				return false;
-			}
-		};
-		Gdx.input.setInputProcessor(processor);
 	}
 
 	@Override
 	public void render () {
 		// обработка касаний
-		/*if(Gdx.input.justTouched()){
+		if(Gdx.input.justTouched()){
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch);
 
@@ -104,7 +48,7 @@ public class Snowfall extends ApplicationAdapter {
 					snowflakes[i].respawn();
 				}
 			}
-		}*/
+		}
 
 		// события игры
 		for (int i = 0; i < snowflakes.length; i++) {

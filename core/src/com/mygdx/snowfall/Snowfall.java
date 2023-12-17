@@ -17,6 +17,7 @@ public class Snowfall extends ApplicationAdapter {
 
 	SpriteBatch batch;
 	OrthographicCamera camera;
+	Vector3 touch;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
@@ -28,6 +29,7 @@ public class Snowfall extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
+		touch = new Vector3();
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
@@ -42,7 +44,9 @@ public class Snowfall extends ApplicationAdapter {
 		if(Gdx.input.justTouched()){
 			float x = Gdx.input.getX();
 			float y = Gdx.input.getY();
-			System.out.println(x+" "+y);
+			touch.set(x, y, 0);
+			camera.unproject(touch);
+			System.out.println(touch.x+" "+ touch.y);
 		}
 
 		for (int i = 0; i < snowflakes.length; i++) {

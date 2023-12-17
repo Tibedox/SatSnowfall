@@ -2,6 +2,7 @@ package com.mygdx.snowfall;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -37,11 +38,14 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
+
+		setInput();
 	}
 
 	@Override
 	public void render () {
-		if(Gdx.input.justTouched()){
+		// обработка касаний
+		/*if(Gdx.input.isTouched()){
 			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch);
 			for (int i = 0; i < snowflakes.length; i++) {
@@ -49,12 +53,14 @@ public class Snowfall extends ApplicationAdapter {
 					snowflakes[i].respawn();
 				}
 			}
-		}
+		}*/
 
+		// события игры
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
 
+		// отрисовка всего
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		batch.draw(imgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -71,5 +77,62 @@ public class Snowfall extends ApplicationAdapter {
 		batch.dispose();
 		imgSnowflake.dispose();
 		imgBackGround.dispose();
+	}
+
+	void setInput(){
+		InputProcessor processor = new InputProcessor() {
+			@Override
+			public boolean keyDown(int keycode) {
+				return false;
+			}
+
+			@Override
+			public boolean keyUp(int keycode) {
+				return false;
+			}
+
+			@Override
+			public boolean keyTyped(char character) {
+				return false;
+			}
+
+			@Override
+			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+				touch.set(screenX, screenY, 0);
+				camera.unproject(touch);
+				for (int i = 0; i < snowflakes.length; i++) {
+					if(snowflakes[i].hit(touch.x, touch.y)){
+						snowflakes[i].respawn();
+					}
+				}
+				return false;
+			}
+
+			@Override
+			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+				return false;
+			}
+
+			@Override
+			public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+				return false;
+			}
+
+			@Override
+			public boolean touchDragged(int screenX, int screenY, int pointer) {
+				return false;
+			}
+
+			@Override
+			public boolean mouseMoved(int screenX, int screenY) {
+				return false;
+			}
+
+			@Override
+			public boolean scrolled(float amountX, float amountY) {
+				return false;
+			}
+		};
+		Gdx.input.setInputProcessor(processor);
 	}
 }

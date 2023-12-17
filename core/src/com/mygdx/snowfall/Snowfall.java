@@ -22,9 +22,12 @@ public class Snowfall extends ApplicationAdapter {
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
+	Texture imgSoundOn, imgSoundOff;
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
+	boolean soundOn = true;
+	MyButton btnSound;
 	
 	@Override
 	public void create () {
@@ -35,8 +38,11 @@ public class Snowfall extends ApplicationAdapter {
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
+		imgSoundOn = new Texture("soundon.png");
+		imgSoundOff = new Texture("soundoff.png");
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
+		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
@@ -71,6 +77,7 @@ public class Snowfall extends ApplicationAdapter {
 					snowflakes[i].width/2, snowflakes[i].height/2, snowflakes[i].width, snowflakes[i].height,
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
+		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
 		batch.end();
 	}
 
@@ -103,10 +110,15 @@ public class Snowfall extends ApplicationAdapter {
 			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 				touch.set(screenX, screenY, 0);
 				camera.unproject(touch);
+				if(btnSound.hit(touch.x, touch.y)){
+					soundOn = !soundOn;
+				}
 				for (int i = 0; i < snowflakes.length; i++) {
 					if(snowflakes[i].hit(touch.x, touch.y)){
 						snowflakes[i].respawn();
-						sndChpok.play();
+						if(soundOn) {
+							sndChpok.play();
+						}
 					}
 				}
 				return false;

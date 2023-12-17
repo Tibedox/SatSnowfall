@@ -16,15 +16,18 @@ public class Snowfall extends ApplicationAdapter {
 	public static final float SCR_WIDTH = 1280, SCR_HEIGHT = 720;
 
 	SpriteBatch batch;
+	OrthographicCamera camera;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
 
-	Snowflake[] snowflakes = new Snowflake[20];
+	Snowflake[] snowflakes = new Snowflake[220];
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
@@ -36,10 +39,17 @@ public class Snowfall extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+		if(Gdx.input.justTouched()){
+			float x = Gdx.input.getX();
+			float y = Gdx.input.getY();
+			System.out.println(x+" "+y);
+		}
+
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
 
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		batch.draw(imgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
 		for (int i = 0; i < snowflakes.length; i++) {

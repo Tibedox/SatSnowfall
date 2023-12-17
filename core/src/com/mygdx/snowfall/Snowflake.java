@@ -30,12 +30,8 @@ public class Snowflake {
         vy = -MathUtils.random(1f, 3f);
         vx = MathUtils.random(-0.5f, 0.5f);
         float k = 477/413; // коэффициент пропорциональности изображения снежинки
-        width = MathUtils.random(20f, 60f);
+        width = MathUtils.random(2f, 20f);
         height = width*k;
         speedRotation = MathUtils.random(-3f, 3f);
-    }
-
-    boolean hit(float tx, float ty){
-        return x<tx & tx<x+width & y<ty & ty<y+height;
     }
 }

@@ -42,11 +42,13 @@ public class Snowfall extends ApplicationAdapter {
 	@Override
 	public void render () {
 		if(Gdx.input.justTouched()){
-			float x = Gdx.input.getX();
-			float y = Gdx.input.getY();
-			touch.set(x, y, 0);
+			touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touch);
-			System.out.println(touch.x+" "+ touch.y);
+			for (int i = 0; i < snowflakes.length; i++) {
+				if(snowflakes[i].hit(touch.x, touch.y)){
+					snowflakes[i].respawn();
+				}
+			}
 		}
 
 		for (int i = 0; i < snowflakes.length; i++) {

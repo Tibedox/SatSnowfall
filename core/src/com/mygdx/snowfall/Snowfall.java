@@ -22,6 +22,7 @@ public class Snowfall extends ApplicationAdapter {
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
+	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
 	
@@ -34,6 +35,7 @@ public class Snowfall extends ApplicationAdapter {
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
+		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
@@ -77,6 +79,7 @@ public class Snowfall extends ApplicationAdapter {
 		batch.dispose();
 		imgSnowflake.dispose();
 		imgBackGround.dispose();
+		sndChpok.dispose();
 	}
 
 	void setInput(){
@@ -103,6 +106,7 @@ public class Snowfall extends ApplicationAdapter {
 				for (int i = 0; i < snowflakes.length; i++) {
 					if(snowflakes[i].hit(touch.x, touch.y)){
 						snowflakes[i].respawn();
+						sndChpok.play();
 					}
 				}
 				return false;

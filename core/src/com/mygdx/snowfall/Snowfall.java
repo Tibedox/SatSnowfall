@@ -19,6 +19,7 @@ public class Snowfall extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
+	BitmapFont font;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
@@ -28,6 +29,7 @@ public class Snowfall extends ApplicationAdapter {
 	Snowflake[] snowflakes = new Snowflake[220];
 	boolean soundOn = true;
 	MyButton btnSound;
+	int score;
 	
 	@Override
 	public void create () {
@@ -35,6 +37,8 @@ public class Snowfall extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 		touch = new Vector3();
+
+		generateFont();
 
 		imgSnowflake = new Texture("snowflake.png");
 		imgBackGround = new Texture("forest.png");
@@ -78,6 +82,7 @@ public class Snowfall extends ApplicationAdapter {
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
 		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
+		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-20);
 		batch.end();
 	}
 
@@ -89,6 +94,18 @@ public class Snowfall extends ApplicationAdapter {
 		sndChpok.dispose();
 	}
 
+	void generateFont(){
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("isabella.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 40;
+		parameter.color = Color.GREEN;
+		parameter.borderColor = Color.WHITE;
+		parameter.borderWidth = 1;
+		parameter.shadowColor = Color.BLACK;
+		parameter.shadowOffsetX = 2;
+		parameter.shadowOffsetY = 2;
+		font = generator.generateFont(parameter);
+	}
 	void setInput(){
 		InputProcessor processor = new InputProcessor() {
 			@Override
@@ -119,6 +136,7 @@ public class Snowfall extends ApplicationAdapter {
 						if(soundOn) {
 							sndChpok.play();
 						}
+						score++;
 					}
 				}
 				return false;

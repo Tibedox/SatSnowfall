@@ -156,19 +156,21 @@ public class Snowfall extends ApplicationAdapter {
 
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			touch.set(screenX, screenY, 0);
-			camera.unproject(touch);
-			if(btnSound.hit(touch.x, touch.y)){
-				soundOn = !soundOn;
-			}
-			if(!gameOver) {
-				for (int i = 0; i < snowflakes.length; i++) {
-					if (snowflakes[i].hit(touch.x, touch.y)) {
-						snowflakes[i].respawn();
-						if (soundOn) {
-							sndChpok.play();
+			for (int j = 0; j <= pointer; j++) {
+				touch.set(Gdx.input.getX(pointer), Gdx.input.getY(pointer), 0);
+				camera.unproject(touch);
+				if (btnSound.hit(touch.x, touch.y)) {
+					soundOn = !soundOn;
+				}
+				if (!gameOver) {
+					for (int i = 0; i < snowflakes.length; i++) {
+						if (snowflakes[i].hit(touch.x, touch.y)) {
+							snowflakes[i].respawn();
+							if (soundOn) {
+								sndChpok.play();
+							}
+							score++;
 						}
-						score++;
 					}
 				}
 			}

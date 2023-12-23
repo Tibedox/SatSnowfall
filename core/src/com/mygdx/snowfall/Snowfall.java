@@ -27,17 +27,19 @@ public class Snowfall extends ApplicationAdapter {
 	Texture imgSnowflake;
 	Texture imgBackGround;
 	Texture imgSoundOn, imgSoundOff;
+	Texture imgRestart;
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
 	MyButton btnSound;
+	MyButton btnRestart;
 	Player[] players = new Player[11];
 	boolean soundOn = true;
 	boolean gameOver = false;
 	int score;
 	String namePlayer = "Player";
 	long timeStartGame;
-	long timeGameDuration = 5100;
+	long timeGameDuration = 5000;
 	String time;
 	
 	@Override
@@ -53,9 +55,11 @@ public class Snowfall extends ApplicationAdapter {
 		imgBackGround = new Texture("forest.png");
 		imgSoundOn = new Texture("soundon.png");
 		imgSoundOff = new Texture("soundoff.png");
+		imgRestart = new Texture("restart.png");
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
+		btnRestart = new MyButton(SCR_WIDTH/2-100, 60, 200, 40);
 		for (int i = 0; i < players.length; i++) {
 			players[i] = new Player("Noname", 0);
 		}
@@ -109,9 +113,10 @@ public class Snowfall extends ApplicationAdapter {
 		font.draw(batch, time, 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
 		if(gameOver) {
 			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-100, SCR_WIDTH, Align.center, true);
-			for (int i = 0; i < players.length; i++) {
+			for (int i = 0; i < players.length-1; i++) {
 				font.draw(batch, (i+1)+". "+players[i].name+"....."+players[i].score, 0, SCR_HEIGHT-200-40*i, SCR_WIDTH, Align.center, true);
 			}
+			batch.draw(imgRestart, btnRestart.x, btnRestart.y, btnRestart.width, btnRestart.height);
 		}
 		batch.end();
 	}
@@ -214,6 +219,11 @@ public class Snowfall extends ApplicationAdapter {
 			if(btnSound.hit(touch.x, touch.y)){
 				soundOn = !soundOn;
 			}
+			if(gameOver){
+				if(btnRestart.hit(touch.x, touch.y)){
+					gameRestart();
+				}
+			}
 			if(!gameOver) {
 				for (int i = 0; i < snowflakes.length; i++) {
 					if (snowflakes[i].hit(touch.x, touch.y)) {
@@ -240,9 +250,6 @@ public class Snowfall extends ApplicationAdapter {
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			if(gameOver) {
-				gameRestart();
-			}
 			return false;
 		}
 

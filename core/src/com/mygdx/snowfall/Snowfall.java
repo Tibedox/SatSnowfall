@@ -3,6 +3,7 @@ package com.mygdx.snowfall;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -30,9 +31,11 @@ public class Snowfall extends ApplicationAdapter {
 
 	Snowflake[] snowflakes = new Snowflake[220];
 	MyButton btnSound;
+	Player[] players = new Player[11];
 	boolean soundOn = true;
 	boolean gameOver = false;
 	int score;
+	String namePlayer = "Player";
 	long timeStartGame;
 	long timeGameDuration = 5100;
 	String time;
@@ -53,6 +56,9 @@ public class Snowfall extends ApplicationAdapter {
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
+		for (int i = 0; i < players.length; i++) {
+			players[i] = new Player("Noname", 0);
+		}
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
@@ -78,10 +84,14 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
-		if(TimeUtils.millis()-timeStartGame >= timeGameDuration) {
-			gameOver = true;
-		}
+
 		if(!gameOver) {
+			if(TimeUtils.millis()-timeStartGame >= timeGameDuration) {
+				gameOver = true;
+				loadRecords();
+				sortRecords();
+				saveRecords();
+			}
 			time = getTime();
 		}
 
@@ -99,6 +109,9 @@ public class Snowfall extends ApplicationAdapter {
 		font.draw(batch, time, 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
 		if(gameOver) {
 			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-100, SCR_WIDTH, Align.center, true);
+			for (int i = 0; i < players.length; i++) {
+				font.draw(batch, (i+1)+". "+players[i].name+"....."+players[i].score, 0, SCR_HEIGHT-200-40*i, SCR_WIDTH, Align.center, true);
+			}
 		}
 		batch.end();
 	}
@@ -138,6 +151,46 @@ public class Snowfall extends ApplicationAdapter {
 		return ""+min/10+min%10+":"+sec/10+sec%10+":"+msec/100;
 	}
 
+	void saveRecords(){
+		Preferences preferences = Gdx.app.getPreferences("records");
+		for (int i = 0; i < players.length; i++) {
+			preferences.putString("name"+i, players[i].name);
+			preferences.putInteger("score"+i, players[i].score);
+		}
+		preferences.flush();
+	}
+
+	void loadRecords(){
+		Preferences preferences = Gdx.app.getPreferences("records");
+		for (int i = 0; i < players.length; i++) {
+			if(preferences.contains("name"+i)) players[i].name = preferences.getString("name"+i, "None");
+			if(preferences.contains("score"+i)) players[i].score = preferences.getInteger("score"+i, 0);
+		}
+		players[players.length-1].name = namePlayer;
+		players[players.length-1].score = score;
+	}
+
+	void sortRecords() {
+		for (int j = 0; j < players.length; j++) {
+			for (int i = 0; i < players.length - 1; i++) {
+				if (players[i].score < players[i + 1].score) {
+					Player c = players[i];
+					players[i] = players[i + 1];
+					players[i + 1] = c;
+				}
+			}
+		}
+	}
+
+	void gameRestart() {
+		score = 0;
+		for (int i = 0; i < snowflakes.length; i++) {
+			snowflakes[i].respawn();
+		}
+		timeStartGame = TimeUtils.millis();
+		gameOver = false;
+	}
+
 	class MyInputProcessor implements InputProcessor{
 		@Override
 		public boolean keyDown(int keycode) {
@@ -156,21 +209,19 @@ public class Snowfall extends ApplicationAdapter {
 
 		@Override
 		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			for (int j = 0; j <= pointer; j++) {
-				touch.set(Gdx.input.getX(pointer), Gdx.input.getY(pointer), 0);
-				camera.unproject(touch);
-				if (btnSound.hit(touch.x, touch.y)) {
-					soundOn = !soundOn;
-				}
-				if (!gameOver) {
-					for (int i = 0; i < snowflakes.length; i++) {
-						if (snowflakes[i].hit(touch.x, touch.y)) {
-							snowflakes[i].respawn();
-							if (soundOn) {
-								sndChpok.play();
-							}
-							score++;
+			touch.set(screenX, screenY, 0);
+			camera.unproject(touch);
+			if(btnSound.hit(touch.x, touch.y)){
+				soundOn = !soundOn;
+			}
+			if(!gameOver) {
+				for (int i = 0; i < snowflakes.length; i++) {
+					if (snowflakes[i].hit(touch.x, touch.y)) {
+						snowflakes[i].respawn();
+						if (soundOn) {
+							sndChpok.play();
 						}
+						score++;
 					}
 				}
 			}
@@ -189,6 +240,9 @@ public class Snowfall extends ApplicationAdapter {
 
 		@Override
 		public boolean touchDragged(int screenX, int screenY, int pointer) {
+			if(gameOver) {
+				gameRestart();
+			}
 			return false;
 		}
 

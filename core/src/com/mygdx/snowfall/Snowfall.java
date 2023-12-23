@@ -21,7 +21,7 @@ public class Snowfall extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
-	BitmapFont font;
+	BitmapFont font, fontLarge;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
@@ -31,8 +31,10 @@ public class Snowfall extends ApplicationAdapter {
 	Snowflake[] snowflakes = new Snowflake[220];
 	MyButton btnSound;
 	boolean soundOn = true;
+	boolean gameOver = false;
 	int score;
 	long timeStartGame;
+	long timeGameDuration = 5100;
 	String time;
 	
 	@Override
@@ -76,6 +78,12 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
+		if(TimeUtils.millis()-timeStartGame >= timeGameDuration) {
+			gameOver = true;
+		}
+		if(!gameOver) {
+			time = getTime();
+		}
 
 		// отрисовка всего
 		batch.setProjectionMatrix(camera.combined);
@@ -88,7 +96,10 @@ public class Snowfall extends ApplicationAdapter {
 		}
 		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
 		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-10);
-		font.draw(batch, getTime(), 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
+		font.draw(batch, time, 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
+		if(gameOver) {
+			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-100, SCR_WIDTH, Align.center, true);
+		}
 		batch.end();
 	}
 
@@ -113,6 +124,8 @@ public class Snowfall extends ApplicationAdapter {
 		parameter.shadowOffsetX = 2;
 		parameter.shadowOffsetY = 2;
 		font = generator.generateFont(parameter);
+		parameter.size = 100;
+		fontLarge = generator.generateFont(parameter);
 		generator.dispose();
 	}
 
@@ -148,13 +161,15 @@ public class Snowfall extends ApplicationAdapter {
 			if(btnSound.hit(touch.x, touch.y)){
 				soundOn = !soundOn;
 			}
-			for (int i = 0; i < snowflakes.length; i++) {
-				if(snowflakes[i].hit(touch.x, touch.y)){
-					snowflakes[i].respawn();
-					if(soundOn) {
-						sndChpok.play();
+			if(!gameOver) {
+				for (int i = 0; i < snowflakes.length; i++) {
+					if (snowflakes[i].hit(touch.x, touch.y)) {
+						snowflakes[i].respawn();
+						if (soundOn) {
+							sndChpok.play();
+						}
+						score++;
 					}
-					score++;
 				}
 			}
 			return false;

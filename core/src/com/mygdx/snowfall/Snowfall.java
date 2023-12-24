@@ -3,8 +3,6 @@ package com.mygdx.snowfall;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,8 +11,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class Snowfall extends ApplicationAdapter {
 	public static final float SCR_WIDTH = 1280, SCR_HEIGHT = 720;
@@ -22,26 +18,18 @@ public class Snowfall extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
-	BitmapFont font, fontLarge;
+	BitmapFont font;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
 	Texture imgSoundOn, imgSoundOff;
-	Texture imgRestart;
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
-	MyButton btnSound;
-	MyButton btnRestart;
-	Player[] players = new Player[11];
 	boolean soundOn = true;
-	boolean gameOver = false;
+	MyButton btnSound;
 	int score;
-	String namePlayer = "Player";
-	long timeStartGame;
-	long timeGameDuration = 5000;
-	String time;
-	
+
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
@@ -55,20 +43,14 @@ public class Snowfall extends ApplicationAdapter {
 		imgBackGround = new Texture("forest.png");
 		imgSoundOn = new Texture("soundon.png");
 		imgSoundOff = new Texture("soundoff.png");
-		imgRestart = new Texture("restart.png");
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
-		btnRestart = new MyButton(SCR_WIDTH/2-100, 60, 200, 40);
-		for (int i = 0; i < players.length; i++) {
-			players[i] = new Player("Noname", 0);
-		}
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
 
-		Gdx.input.setInputProcessor(new MyInputProcessor());
-		timeStartGame = TimeUtils.millis();
+		setInput();
 	}
 
 	@Override
@@ -89,16 +71,6 @@ public class Snowfall extends ApplicationAdapter {
 			snowflakes[i].move();
 		}
 
-		if(!gameOver) {
-			if(TimeUtils.millis()-timeStartGame >= timeGameDuration) {
-				gameOver = true;
-				loadRecords();
-				sortRecords();
-				saveRecords();
-			}
-			time = getTime();
-		}
-
 		// отрисовка всего
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
@@ -109,15 +81,7 @@ public class Snowfall extends ApplicationAdapter {
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
 		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
-		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-10);
-		font.draw(batch, time, 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
-		if(gameOver) {
-			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-100, SCR_WIDTH, Align.center, true);
-			for (int i = 0; i < players.length-1; i++) {
-				font.draw(batch, (i+1)+". "+players[i].name+"....."+players[i].score, 0, SCR_HEIGHT-200-40*i, SCR_WIDTH, Align.center, true);
-			}
-			batch.draw(imgRestart, btnRestart.x, btnRestart.y, btnRestart.width, btnRestart.height);
-		}
+		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-20);
 		batch.end();
 	}
 
@@ -126,8 +90,6 @@ public class Snowfall extends ApplicationAdapter {
 		batch.dispose();
 		imgSnowflake.dispose();
 		imgBackGround.dispose();
-		imgSoundOn.dispose();
-		imgSoundOff.dispose();
 		sndChpok.dispose();
 	}
 
@@ -136,131 +98,74 @@ public class Snowfall extends ApplicationAdapter {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 40;
 		parameter.color = Color.GREEN;
-		parameter.borderColor = Color.valueOf("#0D4D1F");
+		parameter.borderColor = Color.WHITE;
 		parameter.borderWidth = 1;
 		parameter.shadowColor = Color.BLACK;
 		parameter.shadowOffsetX = 2;
 		parameter.shadowOffsetY = 2;
 		font = generator.generateFont(parameter);
-		parameter.size = 100;
-		fontLarge = generator.generateFont(parameter);
-		generator.dispose();
 	}
+	void setInput(){
+		InputProcessor processor = new InputProcessor() {
+			@Override
+			public boolean keyDown(int keycode) {
+				return false;
+			}
 
-	String getTime(){
-		long time = TimeUtils.millis()-timeStartGame;
-		long msec = time%1000;
-		long sec = time/1000%60;
-		long min = time/1000/60%60;
-		long hour = time/1000/60/60;
-		return ""+min/10+min%10+":"+sec/10+sec%10+":"+msec/100;
-	}
+			@Override
+			public boolean keyUp(int keycode) {
+				return false;
+			}
 
-	void saveRecords(){
-		Preferences preferences = Gdx.app.getPreferences("records");
-		for (int i = 0; i < players.length; i++) {
-			preferences.putString("name"+i, players[i].name);
-			preferences.putInteger("score"+i, players[i].score);
-		}
-		preferences.flush();
-	}
+			@Override
+			public boolean keyTyped(char character) {
+				return false;
+			}
 
-	void loadRecords(){
-		Preferences preferences = Gdx.app.getPreferences("records");
-		for (int i = 0; i < players.length; i++) {
-			if(preferences.contains("name"+i)) players[i].name = preferences.getString("name"+i, "None");
-			if(preferences.contains("score"+i)) players[i].score = preferences.getInteger("score"+i, 0);
-		}
-		players[players.length-1].name = namePlayer;
-		players[players.length-1].score = score;
-	}
-
-	void sortRecords() {
-		for (int j = 0; j < players.length; j++) {
-			for (int i = 0; i < players.length - 1; i++) {
-				if (players[i].score < players[i + 1].score) {
-					Player c = players[i];
-					players[i] = players[i + 1];
-					players[i + 1] = c;
+			@Override
+			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+				touch.set(screenX, screenY, 0);
+				camera.unproject(touch);
+				if(btnSound.hit(touch.x, touch.y)){
+					soundOn = !soundOn;
 				}
-			}
-		}
-	}
-
-	void gameRestart() {
-		score = 0;
-		for (int i = 0; i < snowflakes.length; i++) {
-			snowflakes[i].respawn();
-		}
-		timeStartGame = TimeUtils.millis();
-		gameOver = false;
-	}
-
-	class MyInputProcessor implements InputProcessor{
-		@Override
-		public boolean keyDown(int keycode) {
-			return false;
-		}
-
-		@Override
-		public boolean keyUp(int keycode) {
-			return false;
-		}
-
-		@Override
-		public boolean keyTyped(char character) {
-			return false;
-		}
-
-		@Override
-		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-			touch.set(screenX, screenY, 0);
-			camera.unproject(touch);
-			if(btnSound.hit(touch.x, touch.y)){
-				soundOn = !soundOn;
-			}
-			if(gameOver){
-				if(btnRestart.hit(touch.x, touch.y)){
-					gameRestart();
-				}
-			}
-			if(!gameOver) {
 				for (int i = 0; i < snowflakes.length; i++) {
-					if (snowflakes[i].hit(touch.x, touch.y)) {
+					if(snowflakes[i].hit(touch.x, touch.y)){
 						snowflakes[i].respawn();
-						if (soundOn) {
+						if(soundOn) {
 							sndChpok.play();
 						}
 						score++;
 					}
 				}
+				return false;
 			}
-			return false;
-		}
 
-		@Override
-		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-			return false;
-		}
+			@Override
+			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+				return false;
+			}
 
-		@Override
-		public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-			return false;
-		}
+			@Override
+			public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+				return false;
+			}
 
-		@Override
-		public boolean touchDragged(int screenX, int screenY, int pointer) {
-			return false;
-		}
+			@Override
+			public boolean touchDragged(int screenX, int screenY, int pointer) {
+				return false;
+			}
 
-		@Override
-		public boolean mouseMoved(int screenX, int screenY) {
-			return false;
-		}
+			@Override
+			public boolean mouseMoved(int screenX, int screenY) {
+				return false;
+			}
 
-		@Override
-		public boolean scrolled(float amountX, float amountY) {
-			return false;
-		}
+			@Override
+			public boolean scrolled(float amountX, float amountY) {
+				return false;
+			}
+		};
+		Gdx.input.setInputProcessor(processor);
 	}
 }

@@ -26,11 +26,13 @@ public class Snowfall extends ApplicationAdapter {
 	Texture imgSnowflake;
 	Texture imgBackGround;
 	Texture imgSoundOn, imgSoundOff;
+	Texture imgRestart;
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
 	Player[] players = new Player[11];
 	MyButton btnSound;
+	MyButton btnRestart;
 	boolean soundOn = true;
 	boolean gameOver = false;
 	int score;
@@ -51,9 +53,11 @@ public class Snowfall extends ApplicationAdapter {
 		imgBackGround = new Texture("forest.png");
 		imgSoundOn = new Texture("soundon.png");
 		imgSoundOff = new Texture("soundoff.png");
+		imgRestart = new Texture("restart.png");
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
+		btnRestart = new MyButton(SCR_WIDTH/2-100, 50, 200, 50);
 		for (int i = 0; i < players.length; i++) {
 			players[i] = new Player("Noname", 0);
 		}
@@ -110,6 +114,7 @@ public class Snowfall extends ApplicationAdapter {
 			for (int i = 0; i < players.length-1; i++) {
 				font.draw(batch, i+1+". "+players[i].name+"....."+players[i].score, 0, SCR_HEIGHT*3/4-40*i, SCR_WIDTH, Align.center, true);
 			}
+			batch.draw(imgRestart, btnRestart.x, btnRestart.y, btnRestart.width, btnRestart.height);
 		}
 		batch.end();
 	}
@@ -177,6 +182,15 @@ public class Snowfall extends ApplicationAdapter {
 		}
 	}
 
+	void restartGame() {
+		score = 0;
+		gameOver = false;
+		timeStartGame = TimeUtils.millis();
+		for (int i = 0; i < snowflakes.length; i++) {
+			snowflakes[i].respawn();
+		}
+	}
+
 	class MyInputProcessor implements InputProcessor {
 		@Override
 		public boolean keyDown(int keycode) {
@@ -199,6 +213,11 @@ public class Snowfall extends ApplicationAdapter {
 			camera.unproject(touch);
 			if(btnSound.hit(touch.x, touch.y)){
 				soundOn = !soundOn;
+			}
+			if(gameOver) {
+				if(btnRestart.hit(touch.x, touch.y)) {
+					restartGame();
+				}
 			}
 			if(!gameOver) {
 				for (int i = 0; i < snowflakes.length; i++) {

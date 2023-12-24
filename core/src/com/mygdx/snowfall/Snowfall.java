@@ -3,6 +3,7 @@ package com.mygdx.snowfall;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -28,7 +29,7 @@ public class Snowfall extends ApplicationAdapter {
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
-	Player[] players = new Player[6];
+	Player[] players = new Player[11];
 	MyButton btnSound;
 	boolean soundOn = true;
 	boolean gameOver = false;
@@ -86,9 +87,9 @@ public class Snowfall extends ApplicationAdapter {
 			time = TimeUtils.millis() - timeStartGame;
 			if (time > timeGameDuration) {
 				gameOver = true;
-				//loadRecords();
-				//sortRecords();
-				//saveRecords();
+				loadRecords();
+				sortRecords();
+				saveRecords();
 			}
 		}
 
@@ -105,7 +106,10 @@ public class Snowfall extends ApplicationAdapter {
 		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-10);
 		font.draw(batch, getTimeString(), 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
 		if(gameOver){
-			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-120, SCR_WIDTH, Align.center, true);
+			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-70, SCR_WIDTH, Align.center, true);
+			for (int i = 0; i < players.length-1; i++) {
+				font.draw(batch, i+1+". "+players[i].name+"....."+players[i].score, 0, SCR_HEIGHT*3/4-40*i, SCR_WIDTH, Align.center, true);
+			}
 		}
 		batch.end();
 	}
@@ -140,6 +144,37 @@ public class Snowfall extends ApplicationAdapter {
 		long min = time/1000/60%60;
 		long hour = time/1000/60/60;
 		return ""+min/10+min%10+":"+sec/10+sec%10+":"+msec/100;
+	}
+
+	void saveRecords() {
+		Preferences preferences = Gdx.app.getPreferences("records");
+		for (int i = 0; i < players.length; i++) {
+			preferences.putString("name"+i, players[i].name);
+			preferences.putInteger("score"+i, players[i].score);
+		}
+		preferences.flush();
+	}
+
+	void loadRecords() {
+		Preferences preferences = Gdx.app.getPreferences("records");
+		for (int i = 0; i < players.length; i++) {
+			if(preferences.contains("name"+i)) players[i].name = preferences.getString("name"+i, "None");
+			if(preferences.contains("score"+i)) players[i].score = preferences.getInteger("score"+i, 0);
+		}
+	}
+
+	void sortRecords() {
+		players[players.length-1].name = playerName;
+		players[players.length-1].score = score;
+		for (int j = 0; j < players.length-1; j++) {
+			for (int i = 0; i < players.length-1; i++) {
+				if (players[i].score < players[i+1].score) {
+					Player c = players[i];
+					players[i] = players[i+1];
+					players[i+1] = c;
+				}
+			}
+		}
 	}
 
 	class MyInputProcessor implements InputProcessor {

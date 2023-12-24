@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class Snowfall extends ApplicationAdapter {
 	public static final float SCR_WIDTH = 1280, SCR_HEIGHT = 720;
@@ -29,6 +31,7 @@ public class Snowfall extends ApplicationAdapter {
 	MyButton btnSound;
 	boolean soundOn = true;
 	int score;
+	long timeStartGame, time;
 
 	@Override
 	public void create () {
@@ -51,6 +54,8 @@ public class Snowfall extends ApplicationAdapter {
 		}
 
 		Gdx.input.setInputProcessor(new MyInputProcessor());
+
+		timeStartGame = TimeUtils.millis();
 	}
 
 	@Override
@@ -70,6 +75,7 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
+		time = TimeUtils.millis()-timeStartGame;
 
 		// отрисовка всего
 		batch.setProjectionMatrix(camera.combined);
@@ -81,7 +87,8 @@ public class Snowfall extends ApplicationAdapter {
 					1, 1, snowflakes[i].angle, 0, 0, 413, 477, false, false);
 		}
 		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
-		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-20);
+		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-10);
+		font.draw(batch, getTimeString(), 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
 		batch.end();
 	}
 
@@ -104,6 +111,14 @@ public class Snowfall extends ApplicationAdapter {
 		parameter.shadowOffsetX = 2;
 		parameter.shadowOffsetY = 2;
 		font = generator.generateFont(parameter);
+	}
+
+	String getTimeString(){
+		long msec = time%1000;
+		long sec = time/1000%60;
+		long min = time/1000/60%60;
+		long hour = time/1000/60/60;
+		return ""+min/10+min%10+":"+sec/10+sec%10+":"+msec/100;
 	}
 
 	class MyInputProcessor implements InputProcessor {

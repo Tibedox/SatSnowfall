@@ -26,8 +26,8 @@ public class Snowfall extends ApplicationAdapter {
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
-	boolean soundOn = true;
 	MyButton btnSound;
+	boolean soundOn = true;
 	int score;
 
 	@Override
@@ -50,7 +50,7 @@ public class Snowfall extends ApplicationAdapter {
 			snowflakes[i] = new Snowflake();
 		}
 
-		setInput();
+		Gdx.input.setInputProcessor(new MyInputProcessor());
 	}
 
 	@Override
@@ -98,74 +98,72 @@ public class Snowfall extends ApplicationAdapter {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = 40;
 		parameter.color = Color.GREEN;
-		parameter.borderColor = Color.WHITE;
+		parameter.borderColor = Color.valueOf("#03620E");
 		parameter.borderWidth = 1;
 		parameter.shadowColor = Color.BLACK;
 		parameter.shadowOffsetX = 2;
 		parameter.shadowOffsetY = 2;
 		font = generator.generateFont(parameter);
 	}
-	void setInput(){
-		InputProcessor processor = new InputProcessor() {
-			@Override
-			public boolean keyDown(int keycode) {
-				return false;
-			}
 
-			@Override
-			public boolean keyUp(int keycode) {
-				return false;
-			}
+	class MyInputProcessor implements InputProcessor {
+		@Override
+		public boolean keyDown(int keycode) {
+			return false;
+		}
 
-			@Override
-			public boolean keyTyped(char character) {
-				return false;
-			}
+		@Override
+		public boolean keyUp(int keycode) {
+			return false;
+		}
 
-			@Override
-			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				touch.set(screenX, screenY, 0);
-				camera.unproject(touch);
-				if(btnSound.hit(touch.x, touch.y)){
-					soundOn = !soundOn;
-				}
-				for (int i = 0; i < snowflakes.length; i++) {
-					if(snowflakes[i].hit(touch.x, touch.y)){
-						snowflakes[i].respawn();
-						if(soundOn) {
-							sndChpok.play();
-						}
-						score++;
+		@Override
+		public boolean keyTyped(char character) {
+			return false;
+		}
+
+		@Override
+		public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+			touch.set(screenX, screenY, 0);
+			camera.unproject(touch);
+			if(btnSound.hit(touch.x, touch.y)){
+				soundOn = !soundOn;
+			}
+			for (int i = 0; i < snowflakes.length; i++) {
+				if(snowflakes[i].hit(touch.x, touch.y)){
+					snowflakes[i].respawn();
+					if(soundOn) {
+						sndChpok.play();
 					}
+					score++;
 				}
-				return false;
 			}
+			return false;
+		}
 
-			@Override
-			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
+		@Override
+		public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+			return false;
+		}
 
-			@Override
-			public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
+		@Override
+		public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+			return false;
+		}
 
-			@Override
-			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				return false;
-			}
+		@Override
+		public boolean touchDragged(int screenX, int screenY, int pointer) {
+			return false;
+		}
 
-			@Override
-			public boolean mouseMoved(int screenX, int screenY) {
-				return false;
-			}
+		@Override
+		public boolean mouseMoved(int screenX, int screenY) {
+			return false;
+		}
 
-			@Override
-			public boolean scrolled(float amountX, float amountY) {
-				return false;
-			}
-		};
-		Gdx.input.setInputProcessor(processor);
+		@Override
+		public boolean scrolled(float amountX, float amountY) {
+			return false;
+		}
 	}
 }

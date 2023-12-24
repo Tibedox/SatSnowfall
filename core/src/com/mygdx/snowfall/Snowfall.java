@@ -20,7 +20,7 @@ public class Snowfall extends ApplicationAdapter {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
-	BitmapFont font;
+	BitmapFont font, fontLarge;
 
 	Texture imgSnowflake;
 	Texture imgBackGround;
@@ -28,10 +28,14 @@ public class Snowfall extends ApplicationAdapter {
 	Sound sndChpok;
 
 	Snowflake[] snowflakes = new Snowflake[220];
+	Player[] players = new Player[6];
 	MyButton btnSound;
 	boolean soundOn = true;
+	boolean gameOver = false;
 	int score;
+	String playerName = "Gamer";
 	long timeStartGame, time;
+	long timeGameDuration = 5000;
 
 	@Override
 	public void create () {
@@ -49,6 +53,9 @@ public class Snowfall extends ApplicationAdapter {
 		sndChpok = Gdx.audio.newSound(Gdx.files.internal("sunchpok.mp3"));
 
 		btnSound = new MyButton(10, SCR_HEIGHT-60, 50);
+		for (int i = 0; i < players.length; i++) {
+			players[i] = new Player("Noname", 0);
+		}
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i] = new Snowflake();
 		}
@@ -75,7 +82,15 @@ public class Snowfall extends ApplicationAdapter {
 		for (int i = 0; i < snowflakes.length; i++) {
 			snowflakes[i].move();
 		}
-		time = TimeUtils.millis()-timeStartGame;
+		if(!gameOver) {
+			time = TimeUtils.millis() - timeStartGame;
+			if (time > timeGameDuration) {
+				gameOver = true;
+				//loadRecords();
+				//sortRecords();
+				//saveRecords();
+			}
+		}
 
 		// отрисовка всего
 		batch.setProjectionMatrix(camera.combined);
@@ -89,6 +104,9 @@ public class Snowfall extends ApplicationAdapter {
 		batch.draw(soundOn?imgSoundOn:imgSoundOff, btnSound.x, btnSound.y, btnSound.width, btnSound.height);
 		font.draw(batch, "SCORE: "+score, SCR_WIDTH-220, SCR_HEIGHT-10);
 		font.draw(batch, getTimeString(), 0, SCR_HEIGHT-10, SCR_WIDTH, Align.center, true);
+		if(gameOver){
+			fontLarge.draw(batch, "Time Out", 0, SCR_HEIGHT-120, SCR_WIDTH, Align.center, true);
+		}
 		batch.end();
 	}
 
@@ -111,6 +129,9 @@ public class Snowfall extends ApplicationAdapter {
 		parameter.shadowOffsetX = 2;
 		parameter.shadowOffsetY = 2;
 		font = generator.generateFont(parameter);
+		parameter.size = 120;
+		fontLarge = generator.generateFont(parameter);
+		generator.dispose();
 	}
 
 	String getTimeString(){
@@ -144,13 +165,15 @@ public class Snowfall extends ApplicationAdapter {
 			if(btnSound.hit(touch.x, touch.y)){
 				soundOn = !soundOn;
 			}
-			for (int i = 0; i < snowflakes.length; i++) {
-				if(snowflakes[i].hit(touch.x, touch.y)){
-					snowflakes[i].respawn();
-					if(soundOn) {
-						sndChpok.play();
+			if(!gameOver) {
+				for (int i = 0; i < snowflakes.length; i++) {
+					if (snowflakes[i].hit(touch.x, touch.y)) {
+						snowflakes[i].respawn();
+						if (soundOn) {
+							sndChpok.play();
+						}
+						score++;
 					}
-					score++;
 				}
 			}
 			return false;
